@@ -125,6 +125,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     print(message['param_value'])
         return None
 
+    def Wait_HEARTBEAT(self,timeout_s=1,retry=2):
+        for t in range(retry):
+            try:
+                message = self.mav.recv_match(type='HEARTBEAT', blocking=True, timeout=timeout_s)
+            except:
+                pass
+            if message != None:
+                return True
+        return None
+
     def timer_loop(self):
         self.port_name=''
         port_list = list(serial.tools.list_ports.comports())
@@ -149,8 +159,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     print("Found device : %s, Creat mavutil."%self.port_name)
                     self.statusBar.showMessage("Found device waiting mavlink.",1000)
                     self.mav = mavutil.mavlink_connection(self.port_name, baud=57600)
-                    message = self.mav.recv_match(type='HEARTBEAT', blocking=True, timeout=4)
-                    if message != None :
+                    #message = self.mav.recv_match(type='HEARTBEAT', blocking=True, timeout=4)
+                    if self.Wait_HEARTBEAT() != None :
                         self.mavlink_is_ready=True
                         print("Drone Connected. HEARTBEAT received.")
                         self.display_label("Drone Connected. HEARTBEAT received. （飞机连接成功）",'#118855')
@@ -161,6 +171,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         self.button_3.setEnabled(True)
                     else:
                         # FC did not send mavlink. maybe stuck at bootloader.
+                        self.mav.close()
                         self.display_label("No respond.Please try reboot.（无响应，重启飞机后插入）",'#FF0000')
                         self.last_connect_state = self.connect_state = False
                         return
@@ -173,6 +184,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         except:
             print("port operation fail.port unstable.(连接不稳定)")
             self.statusBar.showMessage("port operation fail.port unstable.(连接不稳定)",2000)
+            self.last_connect_state = False
+            # Even connection still disbale. Once try mavlink_connection() should use close(). 
+            self.mav.close()
+            return
 
         self.last_connect_state=self.connect_state
 
