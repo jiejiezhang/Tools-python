@@ -59,6 +59,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def read_clicked(self):
         self.statusBar.showMessage("Reading ID.(读取中.)",2000)
         if self.mavlink_is_ready == True:
+            # for py3 [str]--->(encode)--->[bytes]-->(decode)-->str
             p1 = self.read_param_retry(b'MAV_VEHICLE_ID1').decode()
             p2 = self.read_param_retry(b'MAV_VEHICLE_ID2').decode()
             p3 = self.read_param_retry(b'MAV_VEHICLE_ID3').decode()
