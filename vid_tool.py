@@ -99,8 +99,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 return struct.pack('f', message['param_value'])
         return None
 
-    def set_param_retry(self,param_name=b'None',value=b'None',timeout_s=0.5,retry=3):
-        value_f, = struct.unpack('1f',value)
+    def set_param_retry(self,param_name='None',value=b'None',timeout_s=0.5,retry=3):
+        value_f, = struct.unpack('1f',str_to_bytes(value))
         for t in range(retry):
             try:
                 self.mav.mav.param_set_send(self.mav.target_system, self.mav.target_component,param_name,value_f,mavutil.mavlink.MAV_PARAM_TYPE_INT32)
@@ -109,8 +109,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 message = None
             if message != None :
                 message=message.to_dict()
-                if message['param_id'] == param_name and message['param_value']==value_f:
+                if str_to_bytes(message['param_id']) == param_name and message['param_value']==value_f:
                     return True
+                else:
+                    #print bad info.
+                    print(message['param_id'])
+                    print(param_name)
+                    print(value_f)
+                    print(message['param_value'])
         return None
 
     def timer_loop(self):
@@ -164,6 +170,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def clean_clicked(self):
         pass
 
+
     #设置显示label
     def display_label(self,text,color):
             self.label.setText(text)
@@ -173,6 +180,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             pe = QPalette()
             pe.setColor(QPalette.WindowText,background_color)
             self.label.setPalette(pe)
+
+
+def str_to_bytes(str):
+    if sys.version_info.major == 2:
+        return bytes(str)
+    return bytes(str,encoding='utf-8')
 
 #Main函数，生成主窗口
 if __name__ == "__main__":
