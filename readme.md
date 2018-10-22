@@ -2,10 +2,9 @@
 # This is a tool for display serial data to your screen.
 
 Feture:
-1. Automatic serial port scaning.
-2. Wide rang baudrate setting.
-3. Ascii and Hex format support.
-4. Text string sending support.
+1. Automatic connect to serial port.
+2. param setting.
+3. param read back.
 
 Build tool :
 
@@ -37,6 +36,6 @@ step 3. run command: "pyuic5 -o ui.py ui.ui" . You will get python file "ui.py" 
 Run:python ComHelper.py
 
 # How to release a executable program:
-Run:pyinstaller -F ComHelper.py -p ui.py
+Run:pyinstaller -F vid_tool.py -p ui.py
 
 You will get a executable file at "./dist".
