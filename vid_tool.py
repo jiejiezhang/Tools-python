@@ -58,11 +58,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def read_clicked(self):
         self.display_label("Reading ID.(读取中.)",'#118855')
         if self.mavlink_is_ready == True:
-            p1 = str(self.read_param_retry(b'MAV_VEHICLE_ID1'))
-            p2 = str(self.read_param_retry(b'MAV_VEHICLE_ID2'))
-            p3 = str(self.read_param_retry(b'MAV_VEHICLE_ID3'))
-            p4 = str(self.read_param_retry(b'MAV_VEHICLE_ID4'))
-            self.lineEdit.setText("READ: "+p1+p2+p3+p4)
+            p1 = self.read_param_retry(b'MAV_VEHICLE_ID1').decode()
+            p2 = self.read_param_retry(b'MAV_VEHICLE_ID2').decode()
+            p3 = self.read_param_retry(b'MAV_VEHICLE_ID3').decode()
+            p4 = self.read_param_retry(b'MAV_VEHICLE_ID4').decode()
+            self.lineEdit.setText("READ:"+p1+p2+p3+p4)
             self.lineEdit.setFocus()
             self.lineEdit.selectAll()
             self.display_label("Read ID completed. (读取ID完毕.)",'#118855')
