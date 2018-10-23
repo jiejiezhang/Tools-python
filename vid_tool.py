@@ -60,15 +60,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.statusBar.showMessage("Reading ID.(读取中.)",2000)
         if self.mavlink_is_ready == True:
             # for py3 [str]--->(encode)--->[bytes]-->(decode)-->str
-            p1 = self.read_param_retry(b'MAV_VEHICLE_ID1').decode()
-            p2 = self.read_param_retry(b'MAV_VEHICLE_ID2').decode()
-            p3 = self.read_param_retry(b'MAV_VEHICLE_ID3').decode()
-            p4 = self.read_param_retry(b'MAV_VEHICLE_ID4').decode()
-            self.lineEdit.setText("READ:"+p1+p2+p3+p4)
-            self.lineEdit.setFocus()
-            self.lineEdit.selectAll()
-            self.display_label("Read ID completed. (读取ID完毕.)",'#118855')
-            self.statusBar.showMessage("Done.",2000)
+            p1 = self.read_param_retry(b'MAV_VEHICLE_ID1')
+            p2 = self.read_param_retry(b'MAV_VEHICLE_ID2')
+            p3 = self.read_param_retry(b'MAV_VEHICLE_ID3')
+            p4 = self.read_param_retry(b'MAV_VEHICLE_ID4')
+
+            if p1 == None or p2 == None or p3 == None or p4 == None:
+                self.display_label("No vaild ID.",'#118855')
+                return
+            else:
+                self.lineEdit.setText("READ:"+p1.decode()+p2.decode()+p3.decode()+p4.decode())
+                self.lineEdit.setFocus()
+                self.lineEdit.selectAll()
+                self.display_label("Read ID completed. (读取ID完毕.)",'#118855')
+                self.statusBar.showMessage("Done.",2000)
 
     def check_input(self):
         if len(self.lineEdit.text()) == 16 and self.mavlink_is_ready == True:
