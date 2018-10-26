@@ -91,9 +91,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         and self.set_param_retry(b'MAV_VEHICLE_ID4',self.lineEdit.text()[12:16]) != None :
             self.display_label("**Set ID successful** ( 设置ID成功 ）",'#118855')
             self.statusBar.showMessage("Done. (设置完毕)",3000)
+            # Empty text content for factory to prevent fools
+            self.lineEdit.setText('')
             return
         self.display_label("**Set ID Fail** (设置失败）",'#FF0000')
         self.statusBar.showMessage("Set ID Error. (错误)",2000)
+        self.lineEdit.setText('')
 
     def read_param_retry(self,param_name='None',timeout_s=1,retry=3):
         for t in range(retry):
