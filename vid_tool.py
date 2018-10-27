@@ -159,6 +159,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.connect_state=True
         else:
             self.connect_state=False
+            self.button_4.setEnabled(False)
             self.button_3.setEnabled(False)
             self.button_2.setEnabled(False)
             self.mavlink_is_ready = False
