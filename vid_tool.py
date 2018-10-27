@@ -44,6 +44,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_3.clicked.connect(self.read_clicked)
         self.button_3.setEnabled(False)
 
+        self.button_4.clicked.connect(self.reset)
+        self.button_4.setEnabled(False)
+
         self.display_label("Waitting Drone connect...（未连接）",'#FF0099')
 
         # timer for port state reflash.
@@ -177,6 +180,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         self.lineEdit.setFocus()
                         self.lineEdit.selectAll()
                         self.button_3.setEnabled(True)
+                        self.button_4.setEnabled(True)
                     else:
                         # FC did not send mavlink. maybe stuck at bootloader.
                         self.mav.close()
@@ -209,6 +213,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             pe.setColor(QPalette.WindowText,background_color)
             self.label.setPalette(pe)
 
+    def reset(self):
+            if self.set_param_retry(b'MAV_RESET_VEHID','FFPT') != None:
+                self.statusBar.showMessage("Reset done !",3000)
+                return
+            else:
+                QMessageBox.information(self, "Error","Please reset again.")
 
 def str_to_bytes(str):
     if sys.version_info.major == 2:

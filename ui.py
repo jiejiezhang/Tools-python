@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/cody/yuneec/pycv/pyqt/VID_tool/ui.ui'
+# Form implementation generated from reading ui file 'ui.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #
@@ -40,9 +40,12 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.button_3.setFont(font)
         self.button_3.setObjectName("button_3")
+        self.button_4 = QtWidgets.QPushButton(self.centralwidget)
+        self.button_4.setGeometry(QtCore.QRect(460, 110, 81, 27))
+        self.button_4.setObjectName("button_4")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 599, 24))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 599, 25))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -58,4 +61,5 @@ class Ui_MainWindow(object):
         self.button_2.setText(_translate("MainWindow", "Set VID"))
         self.label.setText(_translate("MainWindow", "Waitting Drone connect...（未连接）"))
         self.button_3.setText(_translate("MainWindow", "Read"))
+        self.button_4.setText(_translate("MainWindow", "Reset"))
 
