@@ -57,26 +57,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def read_clicked(self):
         self.statusBar.showMessage("Reading Value.(读取中.)",1000)
         if self.mavlink_is_ready == True:
-            # for py3 [str]--->(encode)--->[bytes]-->(decode)-->str
-            value = self.read_param_retry(b'MPC_REALSENSE')
-            if value == None:
+            value_1 = self.read_param_retry(b'MPC_REALSENSE')
+            value_2 = self.read_param_retry(b'BAT_LINK_CHECK')
+            if value_1 == None or value_2 == None :
                 self.display_label("No vaild param.",'#118855')
                 return
             else:
-                self.lineEdit.setText(str(int(value)))
+
+                #show value.
+                self.lineEdit.setText(str(value_1))
+                self.lineEdit_5.setText(str(value_2))
+
                 self.display_label("Read value completed. (读取完毕.)",'#118855')
                 self.statusBar.showMessage("Done.",1000)
 
     def set_clicked(self):
         self.statusBar.showMessage("Setting param... (设置中.)",500)
-        if  self.set_param_retry(b'MPC_REALSENSE',int(self.lineEdit_3.text())) != None:
-            self.display_label("**Set ID successful** ( 设置ID成功 ）",'#118855')
-            QMessageBox.information(mainWindow, "Info","设置ID成功")
+        if  self.set_param_retry(b'MPC_REALSENSE',int(self.lineEdit_3.text())) != None and \
+            self.set_param_retry(b'BAT_LINK_CHECK',int(self.lineEdit_4.text())) != None :
+
+            self.display_label("**Set ID successful** ( 设置参数成功 ）",'#118855')
+            QMessageBox.information(mainWindow, "Info","设置参数成功")
             self.statusBar.showMessage("Done. (设置完毕)",3000)
-            return
-        self.display_label("**Set ID Fail** (设置失败）",'#FF0000')
-        self.statusBar.showMessage("Set ID Error. (错误)",2000)
-        self.lineEdit.setText('')
+        else:
+            self.display_label("**Set ID Fail** (设置失败）",'#FF0000')
+            self.statusBar.showMessage("Set ID Error. (错误)",2000)
+            self.lineEdit.setText('')
 
     def read_param_retry(self,param_name='None',timeout_s=1,retry=3):
         for t in range(retry):
@@ -86,19 +92,29 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except:
                 message = None
             if message != None :
-                return message.param_value
+                #conver float to int32.
+                byte=struct.pack('f',message.param_value)
+                int32_value = int().from_bytes(byte, byteorder='little', signed=True)
+                return int32_value
         return None
 
     def set_param_retry(self,param_name='None',value=None,timeout_s=1,retry=3):
         for t in range(retry):
             try:
-                self.mav.mav.param_set_send(self.mav.target_system, self.mav.target_component,param_name,value,mavutil.mavlink.MAV_PARAM_TYPE_INT32)
+                #conver int32 to float little.
+                _4byte=struct.pack('i',value)
+                value_f = struct.unpack("f",_4byte)[0]
+
+                self.mav.mav.param_set_send(self.mav.target_system, self.mav.target_component,param_name,value_f,mavutil.mavlink.MAV_PARAM_TYPE_INT32)
                 message = self.mav.recv_match(type='PARAM_VALUE', blocking=True, timeout=timeout_s)
-            except:
+            except Exception as e:
+                print(e)
                 message = None
             if message != None :
-                if message.param_id == param_name.decode('utf-8') and int(message.param_value) == value:
-                    print("Set %s to %s"%(message.param_id, str(int(message.param_value))))
+                if message.param_id == param_name.decode('utf-8') and message.param_value == value_f:
+                    byte=struct.pack('f',message.param_value)
+                    int32_value = int().from_bytes(byte, byteorder='little', signed=True)
+                    print("Set %s to %s"%(message.param_id, str(int32_value)))
                     return True
         return None
 
@@ -141,6 +157,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         self.button_2.setEnabled(True)
                         self.button_3.setEnabled(True)
                         self.read_clicked()
+                        self.set_clicked()
                     else:
                         # FC did not send mavlink. maybe stuck at bootloader.
                         self.mav.close()
