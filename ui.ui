@@ -20,9 +20,9 @@
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>376</x>
       <y>60</y>
-      <width>481</width>
+      <width>141</width>
       <height>41</height>
      </rect>
     </property>
@@ -32,14 +32,17 @@
      </font>
     </property>
     <property name="text">
-     <string/>
+     <string>?</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QPushButton" name="button_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>110</y>
+      <x>21</x>
+      <y>118</y>
       <width>121</width>
       <height>41</height>
      </rect>
@@ -50,7 +53,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Set VID</string>
+     <string>Set Param</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -74,8 +77,8 @@
    <widget class="QPushButton" name="button_3">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>110</y>
+      <x>159</x>
+      <y>117</y>
       <width>121</width>
       <height>41</height>
      </rect>
@@ -89,12 +92,12 @@
      <string>Read</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="button_4">
+   <widget class="QLineEdit" name="lineEdit_2">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>110</y>
-      <width>121</width>
+      <x>20</x>
+      <y>60</y>
+      <width>261</width>
       <height>41</height>
      </rect>
     </property>
@@ -104,7 +107,70 @@
      </font>
     </property>
     <property name="text">
-     <string>Reset</string>
+     <string>MPC_REALSENSE</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_3">
+    <property name="geometry">
+     <rect>
+      <x>376</x>
+      <y>110</y>
+      <width>141</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>322</x>
+      <y>64</y>
+      <width>51</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>=</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>299</x>
+      <y>120</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Set to</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
     </property>
    </widget>
   </widget>
@@ -114,7 +180,7 @@
      <x>0</x>
      <y>0</y>
      <width>599</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>

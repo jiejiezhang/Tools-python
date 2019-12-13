@@ -39,13 +39,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.statusBar.showMessage("python version: "+str(sys.version))
         self.button_2.clicked.connect(self.set_clicked)
-        self.button_2.setEnabled(False)
+        self.button_2.setEnabled(True)
 
         self.button_3.clicked.connect(self.read_clicked)
-        self.button_3.setEnabled(False)
-
-        self.button_4.clicked.connect(self.reset)
-        self.button_4.setEnabled(False)
+        self.button_3.setEnabled(True)
 
         self.display_label("Waitting Drone connect...（未连接）",'#FF0099')
 
@@ -57,45 +54,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.last_connect_state=False
         self.mavlink_is_ready=False
 
-        self.lineEdit.textChanged.connect(self.check_input)
-
     def read_clicked(self):
-        self.statusBar.showMessage("Reading ID.(读取中.)",2000)
+        self.statusBar.showMessage("Reading Value.(读取中.)",1000)
         if self.mavlink_is_ready == True:
             # for py3 [str]--->(encode)--->[bytes]-->(decode)-->str
-            p1 = self.read_param_retry(b'MAV_VEHICLE_ID1')
-            p2 = self.read_param_retry(b'MAV_VEHICLE_ID2')
-            p3 = self.read_param_retry(b'MAV_VEHICLE_ID3')
-            p4 = self.read_param_retry(b'MAV_VEHICLE_ID4')
-
-            if p1 == None or p2 == None or p3 == None or p4 == None:
-                self.display_label("No vaild ID.",'#118855')
+            value = self.read_param_retry(b'MPC_REALSENSE')
+            if value == None:
+                self.display_label("No vaild param.",'#118855')
                 return
             else:
-                self.lineEdit.setText("READ:"+p1.decode()+p2.decode()+p3.decode()+p4.decode())
-                self.lineEdit.setFocus()
-                self.lineEdit.selectAll()
-                self.display_label("Read ID completed. (读取ID完毕.)",'#118855')
-                self.statusBar.showMessage("Done.",2000)
-
-    def check_input(self):
-        if len(self.lineEdit.text()) == 16 and self.mavlink_is_ready == True:
-            if self.lineEdit.text()[:2]=="YU":
-                self.button_2.setEnabled(True)
-                self.statusBar.showMessage("Input vaild ID. (有效输入)",1000)
-        else:
-            self.button_2.setEnabled(False)
+                self.lineEdit.setText(str(int(value)))
+                self.display_label("Read value completed. (读取完毕.)",'#118855')
+                self.statusBar.showMessage("Done.",1000)
 
     def set_clicked(self):
-        self.statusBar.showMessage("Setting... (设置中.)",2000)
-        if  self.set_param_retry(b'MAV_VEHICLE_ID1',self.lineEdit.text()[0:4]) != None \
-        and self.set_param_retry(b'MAV_VEHICLE_ID2',self.lineEdit.text()[4:8]) != None \
-        and self.set_param_retry(b'MAV_VEHICLE_ID3',self.lineEdit.text()[8:12]) != None \
-        and self.set_param_retry(b'MAV_VEHICLE_ID4',self.lineEdit.text()[12:16]) != None :
+        self.statusBar.showMessage("Setting param... (设置中.)",500)
+        if  self.set_param_retry(b'MPC_REALSENSE',int(self.lineEdit_3.text())) != None:
             self.display_label("**Set ID successful** ( 设置ID成功 ）",'#118855')
             self.statusBar.showMessage("Done. (设置完毕)",3000)
-            # Empty text content for factory to prevent fools
-            self.lineEdit.setText('')
             return
         self.display_label("**Set ID Fail** (设置失败）",'#FF0000')
         self.statusBar.showMessage("Set ID Error. (错误)",2000)
@@ -109,31 +85,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except:
                 message = None
             if message != None :
-                message=message.to_dict()
-                if str_to_bytes(message['param_id']) == param_name:
-                    print("get %s = %s"%(message['param_id'], struct.pack('f', message['param_value']).decode() ))
-                    return struct.pack('f', message['param_value'])
+                return message.param_value
         return None
 
-    def set_param_retry(self,param_name='None',value=b'None',timeout_s=1,retry=3):
-        value_f, = struct.unpack('1f',str_to_bytes(value))
+    def set_param_retry(self,param_name='None',value=None,timeout_s=1,retry=3):
         for t in range(retry):
             try:
-                self.mav.mav.param_set_send(self.mav.target_system, self.mav.target_component,param_name,value_f,mavutil.mavlink.MAV_PARAM_TYPE_INT32)
+                self.mav.mav.param_set_send(self.mav.target_system, self.mav.target_component,param_name,value,mavutil.mavlink.MAV_PARAM_TYPE_INT32)
                 message = self.mav.recv_match(type='PARAM_VALUE', blocking=True, timeout=timeout_s)
             except:
                 message = None
             if message != None :
-                message=message.to_dict()
-                if str_to_bytes(message['param_id']) == param_name and message['param_value']==value_f:
-                    print("Set %s to %s"%(message['param_id'], struct.pack('f', message['param_value']).decode() ))
+                if message.param_id == param_name.decode('utf-8') and int(message.param_value) == value:
+                    print("Set %s to %s"%(message.param_id, str(int(message.param_value))))
                     return True
-                else:
-                    #print bad info.
-                    print(message['param_id'])
-                    print(param_name)
-                    print(value_f)
-                    print(message['param_value'])
         return None
 
     def Wait_HEARTBEAT(self,timeout_s=1,retry=2):
@@ -159,9 +124,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.connect_state=True
         else:
             self.connect_state=False
-            self.button_4.setEnabled(False)
-            self.button_3.setEnabled(False)
-            self.button_2.setEnabled(False)
             self.mavlink_is_ready = False
 
         try:
@@ -176,12 +138,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         self.mavlink_is_ready=True
                         print("Drone Connected. HEARTBEAT received.")
                         self.display_label("Drone Connected. HEARTBEAT received. （飞机连接成功）",'#118855')
-                        # set Focus to lineEdit.
-                        self.check_input()
-                        self.lineEdit.setFocus()
-                        self.lineEdit.selectAll()
                         self.button_3.setEnabled(True)
-                        self.button_4.setEnabled(True)
+                        self.read_clicked()
                     else:
                         # FC did not send mavlink. maybe stuck at bootloader.
                         self.mav.close()
@@ -194,11 +152,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.display_label("Waitting Drone connect...（未连接）",'#FF0000')
                     self.lineEdit.setText("")
                     self.mavlink_is_ready=False
-        except:
-            print("port operation fail.port unstable.(连接不稳定)")
+        except Exception as e:
+            print(e)
             self.statusBar.showMessage("port operation fail.port unstable.(连接不稳定)",2000)
             self.last_connect_state = False
-            # Even connection still disbale. Once try mavlink_connection() should use close(). 
+            # Even connection still disbale. Once try mavlink_connection() should use close().
             self.mav.close()
             return
 
