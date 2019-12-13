@@ -39,10 +39,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.statusBar.showMessage("python version: "+str(sys.version))
         self.button_2.clicked.connect(self.set_clicked)
-        self.button_2.setEnabled(True)
+        self.button_2.setEnabled(False)
 
         self.button_3.clicked.connect(self.read_clicked)
-        self.button_3.setEnabled(True)
+        self.button_3.setEnabled(False)
 
         self.display_label("Waitting Drone connect...（未连接）",'#FF0099')
 
@@ -71,6 +71,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.statusBar.showMessage("Setting param... (设置中.)",500)
         if  self.set_param_retry(b'MPC_REALSENSE',int(self.lineEdit_3.text())) != None:
             self.display_label("**Set ID successful** ( 设置ID成功 ）",'#118855')
+            QMessageBox.information(mainWindow, "Info","设置ID成功")
             self.statusBar.showMessage("Done. (设置完毕)",3000)
             return
         self.display_label("**Set ID Fail** (设置失败）",'#FF0000')
@@ -101,7 +102,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     return True
         return None
 
-    def Wait_HEARTBEAT(self,timeout_s=1,retry=2):
+    def Wait_HEARTBEAT(self,timeout_s=2,retry=4):
         for t in range(retry):
             try:
                 message = self.mav.recv_match(type='HEARTBEAT', blocking=True, timeout=timeout_s)
@@ -133,11 +134,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     print("Found device : %s, Creat mavutil."%self.port_name)
                     self.statusBar.showMessage("Found device waiting mavlink.",1000)
                     self.mav = mavutil.mavlink_connection(self.port_name, baud=57600)
-                    #message = self.mav.recv_match(type='HEARTBEAT', blocking=True, timeout=4)
                     if self.Wait_HEARTBEAT() != None :
                         self.mavlink_is_ready=True
                         print("Drone Connected. HEARTBEAT received.")
                         self.display_label("Drone Connected. HEARTBEAT received. （飞机连接成功）",'#118855')
+                        self.button_2.setEnabled(True)
                         self.button_3.setEnabled(True)
                         self.read_clicked()
                     else:
@@ -148,6 +149,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         return
                 else:
                     print("close mavutil")
+                    self.button_2.setEnabled(False)
+                    self.button_3.setEnabled(False)
                     self.mav.close()
                     self.display_label("Waitting Drone connect...（未连接）",'#FF0000')
                     self.lineEdit.setText("")
